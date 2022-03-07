@@ -44,15 +44,21 @@ class EmaCrossAlphaModel(AlphaModel):
             The new insights generated'''
         insights = []
         for symbol, symbolData in self.symbolDataBySymbol.items():
-            if symbolData.Fast.IsReady and symbolData.Slow.IsReady:
+            if symbolData.FastIsOverSlow:
+                if (
+                    symbolData.Fast.IsReady
+                    and symbolData.Slow.IsReady
+                    and symbolData.Slow > symbolData.Fast
+                ):
+                    insights.append(Insight.Price(symbolData.Symbol, self.predictionInterval, InsightDirection.Down))
 
-                if symbolData.FastIsOverSlow:
-                    if symbolData.Slow > symbolData.Fast:
-                        insights.append(Insight.Price(symbolData.Symbol, self.predictionInterval, InsightDirection.Down))
-
-                elif symbolData.SlowIsOverFast:
-                    if symbolData.Fast > symbolData.Slow:
-                        insights.append(Insight.Price(symbolData.Symbol, self.predictionInterval, InsightDirection.Up))
+            elif symbolData.SlowIsOverFast:
+                if (
+                    symbolData.Fast.IsReady
+                    and symbolData.Slow.IsReady
+                    and symbolData.Fast > symbolData.Slow
+                ):
+                    insights.append(Insight.Price(symbolData.Symbol, self.predictionInterval, InsightDirection.Up))
 
             symbolData.FastIsOverSlow = symbolData.Fast > symbolData.Slow
 

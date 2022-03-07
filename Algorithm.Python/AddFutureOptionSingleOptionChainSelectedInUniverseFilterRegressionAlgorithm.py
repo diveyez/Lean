@@ -37,7 +37,7 @@ class AddFutureOptionSingleOptionChainSelectedInUniverseFilterRegressionAlgorith
     def OptionContractUniverseFilterFunction(self, optionContracts: OptionFilterUniverse) -> OptionFilterUniverse:
         self.optionFilterRan = True
 
-        expiry = list(set([x.Underlying.ID.Date for x in optionContracts]))
+        expiry = list({x.Underlying.ID.Date for x in optionContracts})
         expiry = None if not any(expiry) else expiry[0]
 
         symbol = [x.Underlying for x in optionContracts]

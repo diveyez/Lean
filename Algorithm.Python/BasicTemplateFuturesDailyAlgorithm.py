@@ -46,7 +46,7 @@ class BasicTemplateFuturesDailyAlgorithm(QCAlgorithm):
                 contracts = list(filter(lambda x: x.Expiry > self.Time + timedelta(90), chain.Value))
 
                 # if there is any contract, trade the front contract
-                if len(contracts) == 0: continue
+                if not contracts: continue
                 front = sorted(contracts, key = lambda x: x.Expiry, reverse=True)[0]
 
                 self.contractSymbol = front.Symbol

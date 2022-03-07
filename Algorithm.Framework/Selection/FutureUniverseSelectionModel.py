@@ -72,13 +72,11 @@ class FutureUniverseSelectionModel(UniverseSelectionModel):
 
         # resolve defaults if not specified
         settings = self.universeSettings if self.universeSettings is not None else algorithm.UniverseSettings
-        # create canonical security object, but don't duplicate if it already exists
-        securities = [s for s in algorithm.Securities if s.Key == symbol]
-        if len(securities) == 0:
-            futureChain = self.CreateFutureChainSecurity(algorithm, symbol, settings)
-        else:
+        if securities := [s for s in algorithm.Securities if s.Key == symbol]:
             futureChain = securities[0]
 
+        else:
+            futureChain = self.CreateFutureChainSecurity(algorithm, symbol, settings)
         # set the future chain contract filter function
         futureChain.SetFilter(self.Filter)
 

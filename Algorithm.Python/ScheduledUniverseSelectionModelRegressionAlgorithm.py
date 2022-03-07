@@ -48,7 +48,7 @@ class ScheduledUniverseSelectionModelRegressionAlgorithm(QCAlgorithm):
         symbols = []
         weekday = dateTime.weekday()
 
-        if weekday == 0 or weekday == 1:
+        if weekday in [0, 1]:
             symbols.append(Symbol.Create('SPY', SecurityType.Equity, Market.USA))
         elif weekday == 2:
             # given the date/time rules specified in Initialize, this symbol will never be selected (not invoked on wednesdays)
@@ -56,7 +56,7 @@ class ScheduledUniverseSelectionModelRegressionAlgorithm(QCAlgorithm):
         else:
             symbols.append(Symbol.Create('IBM', SecurityType.Equity, Market.USA))
 
-        if weekday == 1 or weekday == 3:
+        if weekday in [1, 3]:
             symbols.append(Symbol.Create('EURUSD', SecurityType.Forex, Market.Oanda))
         elif weekday == 4:
             # given the date/time rules specified in Initialize, this symbol will never be selected (every 6 hours never lands on hour==1)
@@ -83,11 +83,8 @@ class ScheduledUniverseSelectionModelRegressionAlgorithm(QCAlgorithm):
             self.ExpectAdditions(changes, 'EURUSD')
             if weekday not in self.seenDays:
                 self.seenDays.append(weekday)
-                self.ExpectRemovals(changes, 'NZDUSD')
-            else:
-                self.ExpectRemovals(changes, 'NZDUSD')
-
-        if weekday == 2 or weekday == 4:
+            self.ExpectRemovals(changes, 'NZDUSD')
+        if weekday in [2, 4]:
             # selection function not invoked on wednesdays (2) or friday (4)
             self.ExpectAdditions(changes, None)
             self.ExpectRemovals(changes, None)

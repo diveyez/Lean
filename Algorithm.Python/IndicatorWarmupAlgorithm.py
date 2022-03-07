@@ -132,7 +132,6 @@ class IndicatorWarmupAlgorithm(QCAlgorithm):
             if not self.Security.Invested: return
 
             limit = 0
-            qty = self.Security.Holdings.Quantity
             exitTolerance = 1 + 2 * self.PercentTolerance
             if self.Security.Holdings.IsLong and self.Close.Current.Value * exitTolerance < self.EMA.Current.Value:
                 limit = self.Security.High
@@ -140,6 +139,7 @@ class IndicatorWarmupAlgorithm(QCAlgorithm):
                 limit = self.Security.Low
 
             if limit != 0:
+                qty = self.Security.Holdings.Quantity
                 ticket = self.__algorithm.LimitOrder(self.Symbol, -qty, limit, "TryExit at: {0}".format(limit))
 
 

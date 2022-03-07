@@ -35,10 +35,11 @@ class CustomDataLinkedIconicTypeAddDataCoarseSelectionRegressionAlgorithm(QCAlgo
             Symbol.Create("IBM", SecurityType.Equity, Market.USA),
         ]
 
-        self.customSymbols = []
+        self.customSymbols = [
+            self.AddData(LinkedData, symbol, Resolution.Daily).Symbol
+            for symbol in symbols
+        ]
 
-        for symbol in symbols:
-            self.customSymbols.append(self.AddData(LinkedData, symbol, Resolution.Daily).Symbol)
 
         return symbols
 

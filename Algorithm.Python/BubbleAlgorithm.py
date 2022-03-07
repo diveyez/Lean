@@ -80,7 +80,7 @@ class BubbleAlgorithm(QCAlgorithm):
                         if self._rsiDic[stock].Current.Value > 70 and self.Securities[stock].Holdings.Quantity > 0 \
                         and self.Time.hour == 9 and self.Time.minute == 31:
                             self.SellStock(stock)
-                           
+
                 # Undervalued territory            
                 elif self._newLow:
                     for stock in self._symbols:
@@ -93,13 +93,13 @@ class BubbleAlgorithm(QCAlgorithm):
                         and Securities[stock].Price != 0 and self.Portfolio.Cash > self.Securities[stock].Price * 100 \
                         and self.Time.hour == 9 and self.Time.minute == 31:
                             self.BuyStock(stock)
-                
+
                 # Cape Ratio is missing from orignial data
                 # Most recent cape data is most likely to be missing 
                 elif self._currCape == 0:
                     self.Debug("Exiting due to no CAPE!")
                     self.Quit("CAPE ratio not supplied in data, exiting.")
-                
+
             except:
                 # Do nothing
                 return None       
@@ -122,25 +122,47 @@ class BubbleAlgorithm(QCAlgorithm):
             self._c[self._counter2] = self._currCape
             self._counter2 += 1
             if self._counter2 == 4: self._counter2 = 0
-        self.Debug("Current Cape: " + str(self._currCape) + " on " + str(self.Time))
+        self.Debug(f"Current Cape: {str(self._currCape)} on {str(self.Time)}")
         if self._newLow:
-            self.Debug("New Low has been hit on " + str(self.Time))
+            self.Debug(f"New Low has been hit on {str(self.Time)}")
 
     # Buy this symbol
     def BuyStock(self,symbol):
         s = self.Securities[symbol].Holdings
         if self._macdDic[symbol].Current.Value>0:
             self.SetHoldings(symbol, 1)
-            self.Debug("Purchasing: " + str(symbol) + "   MACD: " + str(self._macdDic[symbol]) + "   RSI: " + str(self._rsiDic[symbol])
-                    + "   Price: " + str(round(self.Securities[symbol].Price, 2)) + "   Quantity: " + str(s.Quantity))
+            self.Debug(
+                (
+                    (
+                        f"Purchasing: {str(symbol)}   MACD: {str(self._macdDic[symbol])}"
+                        + "   RSI: "
+                        + str(self._rsiDic[symbol])
+                        + "   Price: "
+                    )
+                    + str(round(self.Securities[symbol].Price, 2))
+                    + "   Quantity: "
+                )
+                + str(s.Quantity)
+            )
 
     # Sell this symbol
     def SellStock(self,symbol):
         s = self.Securities[symbol].Holdings
         if s.Quantity > 0 and self._macdDic[symbol].Current.Value < 0:
             self.Liquidate(symbol)
-            self.Debug("Selling: " + str(symbol) + " at sell MACD: " + str(self._macdDic[symbol]) + "   RSI: " + str(self._rsiDic[symbol])
-                    + "   Price: " + str(round(self.Securities[symbol].Price, 2)) + "   Profit from sale: " + str(s.LastTradeProfit))
+            self.Debug(
+                (
+                    (
+                        f"Selling: {str(symbol)} at sell MACD: {str(self._macdDic[symbol])}"
+                        + "   RSI: "
+                        + str(self._rsiDic[symbol])
+                        + "   Price: "
+                    )
+                    + str(round(self.Securities[symbol].Price, 2))
+                    + "   Profit from sale: "
+                )
+                + str(s.LastTradeProfit)
+            )
 
 
 # CAPE Ratio for SP500 PE Ratio for avg inflation adjusted earnings for previous ten years Custom Data from DropBox

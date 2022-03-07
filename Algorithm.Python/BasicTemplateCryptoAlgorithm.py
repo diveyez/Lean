@@ -88,11 +88,17 @@ class BasicTemplateCryptoAlgorithm(QCAlgorithm):
         elif self.Time.hour == 2 and self.Time.minute == 1:
             # Get current USD available, subtracting amount reserved for buy open orders
             usdTotal = self.Portfolio.CashBook["USD"].Amount
-            usdReserved = sum(x.Quantity * x.LimitPrice for x
-                in [x for x in self.Transactions.GetOpenOrders()
+            usdReserved = sum(
+                x.Quantity * x.LimitPrice
+                for x in [
+                    x
+                    for x in self.Transactions.GetOpenOrders()
                     if x.Direction == OrderDirection.Buy
-                        and x.Type == OrderType.Limit
-                        and (x.Symbol.Value == "BTCUSD" or x.Symbol.Value == "ETHUSD")])
+                    and x.Type == OrderType.Limit
+                    and x.Symbol.Value in ["BTCUSD", "ETHUSD"]
+                ]
+            )
+
             usdAvailable = usdTotal - usdReserved
             self.Debug("usdAvailable: {}".format(usdAvailable))
 
@@ -133,12 +139,11 @@ class BasicTemplateCryptoAlgorithm(QCAlgorithm):
             if self.fast > self.slow:
                 if self.Portfolio.CashBook["LTC"].Amount == 0:
                     self.Buy("LTCUSD", 10)
-            else:
-                if self.Portfolio.CashBook["LTC"].Amount > 0:
-                    # The following two statements currently behave differently if we have initial holdings:
-                    # https://github.com/QuantConnect/Lean/issues/1860
+            elif self.Portfolio.CashBook["LTC"].Amount > 0:
+                # The following two statements currently behave differently if we have initial holdings:
+                # https://github.com/QuantConnect/Lean/issues/1860
 
-                    self.Liquidate("LTCUSD")
+                self.Liquidate("LTCUSD")
                     # self.SetHoldings("LTCUSD", 0)
 
     def OnOrderEvent(self, orderEvent):

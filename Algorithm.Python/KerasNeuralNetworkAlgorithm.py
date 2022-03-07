@@ -89,8 +89,8 @@ class KerasNeuralNetworkAlgorithm(QCAlgorithm):
             # choose loss function and optimizing method
             model.compile(loss='mse', optimizer=sgd)
 
-            # pick an iteration number large enough for convergence 
-            for step in range(200):
+            # pick an iteration number large enough for convergence
+            for _ in range(200):
                 # training the model
                 cost = model.train_on_batch(predictor, predictand)
 
@@ -122,6 +122,5 @@ class KerasNeuralNetworkAlgorithm(QCAlgorithm):
             if holding.Invested:
                 if openPrice < prediction - historyStd:
                     self.Liquidate(symbol)
-            else:
-                if openPrice > prediction + historyStd:
-                    self.SetHoldings(symbol, target)
+            elif openPrice > prediction + historyStd:
+                self.SetHoldings(symbol, target)

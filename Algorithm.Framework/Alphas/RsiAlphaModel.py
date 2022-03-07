@@ -67,7 +67,7 @@ class RsiAlphaModel(AlphaModel):
 
         # clean up data for removed securities
         symbols = [ x.Symbol for x in changes.RemovedSecurities ]
-        if len(symbols) > 0:
+        if symbols:
             for subscription in algorithm.SubscriptionManager.Subscriptions:
                 if subscription.Symbol in symbols:
                     self.symbolDataBySymbol.pop(subscription.Symbol, None)
@@ -76,7 +76,7 @@ class RsiAlphaModel(AlphaModel):
         # initialize data for added securities
 
         addedSymbols = [ x.Symbol for x in changes.AddedSecurities if x.Symbol not in self.symbolDataBySymbol]
-        if len(addedSymbols) == 0: return
+        if not addedSymbols: return
 
         history = algorithm.History(addedSymbols, self.period, self.resolution)
 
@@ -103,12 +103,10 @@ class RsiAlphaModel(AlphaModel):
             return State.TrippedHigh
         if rsi.Current.Value < 30:
             return State.TrippedLow
-        if previous == State.TrippedLow:
-            if rsi.Current.Value > 35:
-                return State.Middle
-        if previous == State.TrippedHigh:
-            if rsi.Current.Value < 65:
-                return State.Middle
+        if previous == State.TrippedLow and rsi.Current.Value > 35:
+            return State.Middle
+        if previous == State.TrippedHigh and rsi.Current.Value < 65:
+            return State.Middle
 
         return previous
 

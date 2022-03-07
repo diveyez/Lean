@@ -40,7 +40,7 @@ class ManualUniverseSelectionModel(UniverseSelectionModel):
         resolution = universeSettings.Resolution
         type = typeof(Tick) if resolution == Resolution.Tick else typeof(TradeBar)
 
-        universes = list()
+        universes = []
 
         # universe per security type/market
         self.symbols = sorted(self.symbols, key=lambda s: (s.ID.Market, s.SecurityType))

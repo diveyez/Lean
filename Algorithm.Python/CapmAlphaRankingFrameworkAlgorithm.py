@@ -68,7 +68,7 @@ class CapmAlphaRankingUniverseSelectionModel(UniverseSelectionModel):
 
     def SelectPair(self, algorithm, date):
         '''Selects the pair (two stocks) with the highest alpha'''
-        dictionary = dict()
+        dictionary = {}
         benchmark = self._getReturns(algorithm, self.benchmark)
         ones = np.ones(len(benchmark))
 
