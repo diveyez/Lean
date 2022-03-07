@@ -25,9 +25,7 @@ class HistoryRequestBenchmark(QCAlgorithm):
         minuteHistory = self.History([self.symbol], 60, Resolution.Minute)
         lastHourHigh = 0
         for index, row in minuteHistory.loc["SPY"].iterrows():
-            if lastHourHigh < row["high"]:
-                lastHourHigh = row["high"]
-
+            lastHourHigh = max(lastHourHigh, row["high"])
         dailyHistory = self.History([self.symbol], 1, Resolution.Daily).loc["SPY"].head()
         dailyHistoryHigh = dailyHistory["high"]
         dailyHistoryLow = dailyHistory["low"]

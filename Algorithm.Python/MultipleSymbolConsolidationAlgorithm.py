@@ -75,19 +75,19 @@ class MultipleSymbolConsolidationAlgorithm(QCAlgorithm):
         for symbol in self.Data.keys():
             symbolData = self.Data[symbol]
             # this check proves that this symbol was JUST updated prior to this OnData function being called
-            if symbolData.IsReady() and symbolData.WasJustUpdated(self.Time):
-                if not self.Portfolio[symbol].Invested:
-                    self.MarketOrder(symbol, 1)
+            if (
+                symbolData.IsReady()
+                and symbolData.WasJustUpdated(self.Time)
+                and not self.Portfolio[symbol].Invested
+            ):
+                self.MarketOrder(symbol, 1)
 
     # End of a trading day event handler. This method is called at the end of the algorithm day (or multiple times if trading multiple assets).
     # Method is called 10 minutes before closing to allow user to close out position.
     def OnEndOfDay(self, symbol):
         
-        i = 0
-        for symbol in sorted(self.Data.keys()):
+        for i, symbol in enumerate(sorted(self.Data.keys()), start=1):
             symbolData = self.Data[symbol]
-            # we have too many symbols to plot them all, so plot every other
-            i += 1
             if symbolData.IsReady() and i%2 == 0:
                 self.Plot(symbol, symbol, symbolData.SMA.Current.Value)
     

@@ -56,10 +56,18 @@ class OnEndOfDayRegressionAlgorithm(QCAlgorithm):
         if symbol == self._ibmSymbol:
             self._onEndOfDayIbmCallCount += 1
 
-        self.Log("OnEndOfDay() called: " + str(self.UtcTime)
-                + ". SPY count " + str(self._onEndOfDaySpyCallCount)
-                + ". BAC count " + str(self._onEndOfDayBacCallCount)
-                + ". IBM count " + str(self._onEndOfDayIbmCallCount))
+        self.Log(
+            (
+                (
+                    (f"OnEndOfDay() called: {str(self.UtcTime)}" + ". SPY count ")
+                    + str(self._onEndOfDaySpyCallCount)
+                    + ". BAC count "
+                )
+                + str(self._onEndOfDayBacCallCount)
+                + ". IBM count "
+            )
+            + str(self._onEndOfDayIbmCallCount)
+        )
 
     def OnEndOfAlgorithm(self):
         '''Assert expected behavior'''

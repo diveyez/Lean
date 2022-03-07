@@ -85,7 +85,7 @@ class BlackLittermanOptimizationPortfolioConstructionModel(PortfolioConstruction
         # Get view vectors
         P, Q = self.get_views(lastActiveInsights)
         if P is not None:
-            returns = dict()
+            returns = {}
             # Updates the BlackLittermanSymbolData with insights
             # Create a dictionary keyed by the symbols in the insights with an pandas.Series as value to create a data frame
             for insight in lastActiveInsights:
@@ -127,8 +127,14 @@ class BlackLittermanOptimizationPortfolioConstructionModel(PortfolioConstruction
         # Get the last generated active insight for each symbol
         lastActiveInsights = []
         for sourceModel, f in groupby(sorted(activeInsights, key = lambda ff: ff.SourceModel), lambda fff: fff.SourceModel):
-            for symbol, g in groupby(sorted(list(f), key = lambda gg: gg.Symbol), lambda ggg: ggg.Symbol):
-                lastActiveInsights.append(sorted(g, key = lambda x: x.GeneratedTimeUtc)[-1])
+            lastActiveInsights.extend(
+                sorted(g, key=lambda x: x.GeneratedTimeUtc)[-1]
+                for symbol, g in groupby(
+                    sorted(list(f), key=lambda gg: gg.Symbol),
+                    lambda ggg: ggg.Symbol,
+                )
+            )
+
         return lastActiveInsights
 
     def OnSecuritiesChanged(self, algorithm, changes):
@@ -235,18 +241,18 @@ class BlackLittermanOptimizationPortfolioConstructionModel(PortfolioConstruction
                 dn_insights_sum = 0.0
                 for insight in group:
                     if insight.Direction == InsightDirection.Up:
-                        up_insights_sum = up_insights_sum + np.abs(insight.Magnitude)
+                        up_insights_sum += np.abs(insight.Magnitude)
                     if insight.Direction == InsightDirection.Down:
-                        dn_insights_sum = dn_insights_sum + np.abs(insight.Magnitude)
+                        dn_insights_sum += np.abs(insight.Magnitude)
 
-                q = up_insights_sum if up_insights_sum > dn_insights_sum else dn_insights_sum
+                q = max(up_insights_sum, dn_insights_sum)
                 if q == 0:
                     continue
 
                 Q[model] = q
 
                 # generate the link matrix of views: P
-                P[model] = dict()
+                P[model] = {}
                 for insight in group:
                     value = insight.Direction * np.abs(insight.Magnitude)
                     P[model][insight.Symbol] = value / q

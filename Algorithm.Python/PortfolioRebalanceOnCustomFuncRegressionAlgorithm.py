@@ -49,11 +49,11 @@ class PortfolioRebalanceOnCustomFuncRegressionAlgorithm(QCAlgorithm):
             self.lastRebalanceTime = time
             return time
 
-        deviation = 0
-        count = sum(1 for security in self.Securities.Values if security.Invested)
+        count = sum(bool(security.Invested) for security in self.Securities.Values)
         if count > 0:
             self.lastRebalanceTime = time
             portfolioValuePerSecurity = self.Portfolio.TotalPortfolioValue / count
+            deviation = 0
             for security in self.Securities.Values:
                 if not security.Invested:
                     continue
@@ -69,6 +69,7 @@ class PortfolioRebalanceOnCustomFuncRegressionAlgorithm(QCAlgorithm):
         return None
 
     def OnOrderEvent(self, orderEvent):
-        if orderEvent.Status == OrderStatus.Submitted:
-            if self.UtcTime != self.lastRebalanceTime or self.UtcTime.weekday() != 0:
-                raise ValueError(f"{self.UtcTime} {orderEvent.Symbol}")
+        if orderEvent.Status == OrderStatus.Submitted and (
+            self.UtcTime != self.lastRebalanceTime or self.UtcTime.weekday() != 0
+        ):
+            raise ValueError(f"{self.UtcTime} {orderEvent.Symbol}")

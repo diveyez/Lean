@@ -88,9 +88,9 @@ class ShareClassMeanReversionAlphaModel(AlphaModel):
 
         ## If Alpha and Beta haven't been calculated yet, then do so
         if (self.alpha is None) or (self.beta is None):
-           self.CalculateAlphaBeta(algorithm, data)
-           algorithm.Log('Alpha: ' + str(self.alpha))
-           algorithm.Log('Beta: ' + str(self.beta))
+            self.CalculateAlphaBeta(algorithm, data)
+            algorithm.Log(f'Alpha: {str(self.alpha)}')
+            algorithm.Log(f'Beta: {str(self.beta)}')
 
         ## If the SMA isn't fully warmed up, then perform an update
         if not self.sma.IsReady:
@@ -103,20 +103,52 @@ class ShareClassMeanReversionAlphaModel(AlphaModel):
         ## Check to see if the portfolio is invested. If no, then perform value comparisons and emit insights accordingly
         if not self.invested:
             if self.position_value >= self.sma.Current.Value:
-                insights.append(Insight(self.long_symbol, self.prediction_interval, InsightType.Price, InsightDirection.Down, self.insight_magnitude, None))
-                insights.append(Insight(self.short_symbol, self.prediction_interval, InsightType.Price, InsightDirection.Up, self.insight_magnitude, None))
+                insights.extend(
+                    (
+                        Insight(
+                            self.long_symbol,
+                            self.prediction_interval,
+                            InsightType.Price,
+                            InsightDirection.Down,
+                            self.insight_magnitude,
+                            None,
+                        ),
+                        Insight(
+                            self.short_symbol,
+                            self.prediction_interval,
+                            InsightType.Price,
+                            InsightDirection.Up,
+                            self.insight_magnitude,
+                            None,
+                        ),
+                    )
+                )
 
-                ## Reset invested boolean
-                self.invested = True
+            else:
+                insights.extend(
+                    (
+                        Insight(
+                            self.long_symbol,
+                            self.prediction_interval,
+                            InsightType.Price,
+                            InsightDirection.Up,
+                            self.insight_magnitude,
+                            None,
+                        ),
+                        Insight(
+                            self.short_symbol,
+                            self.prediction_interval,
+                            InsightType.Price,
+                            InsightDirection.Down,
+                            self.insight_magnitude,
+                            None,
+                        ),
+                    )
+                )
 
-            elif self.position_value < self.sma.Current.Value:
-                insights.append(Insight(self.long_symbol, self.prediction_interval, InsightType.Price, InsightDirection.Up, self.insight_magnitude, None))
-                insights.append(Insight(self.short_symbol, self.prediction_interval, InsightType.Price, InsightDirection.Down, self.insight_magnitude, None))
+            ## Reset invested boolean
+            self.invested = True
 
-                ## Reset invested boolean
-                self.invested = True
-
-        ## If the portfolio is invested and crossed back over the SMA, then emit flat insights
         elif self.invested and self.CrossedMean():
             ## Reset invested boolean
             self.invested = False

@@ -74,9 +74,8 @@ class MeanReversionIBSAlphaModel(AlphaModel):
 
     def Update(self, algorithm, data):
 
-        insights = []
-        symbolsIBS = dict()
-        returns = dict()
+        symbolsIBS = {}
+        returns = {}
 
         for security in algorithm.ActiveSecurities.Values:
             if security.HasData:
@@ -91,21 +90,36 @@ class MeanReversionIBSAlphaModel(AlphaModel):
                     returns[security.Symbol] = security.Close/security.Open-1
 
         # Number of stocks cannot be higher than half of symbolsIBS length
-        number_of_stocks = min(int(len(symbolsIBS)/2), self.numberOfStocks)
+        number_of_stocks = min(len(symbolsIBS) // 2, self.numberOfStocks)
         if number_of_stocks == 0:
             return []
 
         # Rank securities with the highest IBS value
         ordered = sorted(symbolsIBS.items(), key=lambda kv: (round(kv[1], 6), kv[0]), reverse=True)
-        highIBS = dict(ordered[0:number_of_stocks])   # Get highest IBS
+        highIBS = dict(ordered[:number_of_stocks])
         lowIBS = dict(ordered[-number_of_stocks:])    # Get lowest IBS
 
-        # Emit "down" insight for the securities with the highest IBS value
-        for key,value in highIBS.items():
-            insights.append(Insight.Price(key, self.predictionInterval, InsightDirection.Down, abs(returns[key]), None))
+        insights = [
+            Insight.Price(
+                key,
+                self.predictionInterval,
+                InsightDirection.Down,
+                abs(returns[key]),
+                None,
+            )
+            for key in highIBS
+        ]
 
         # Emit "up" insight for the securities with the lowest IBS value
-        for key,value in lowIBS.items():
-            insights.append(Insight.Price(key, self.predictionInterval, InsightDirection.Up, abs(returns[key]), None))
+        insights.extend(
+            Insight.Price(
+                key,
+                self.predictionInterval,
+                InsightDirection.Up,
+                abs(returns[key]),
+                None,
+            )
+            for key in lowIBS
+        )
 
         return insights

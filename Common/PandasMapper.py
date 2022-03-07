@@ -42,7 +42,7 @@ def mapper(key):
     if keyType is list:
         return [mapper(x) for x in key]
     if keyType is tuple:
-        return tuple([mapper(x) for x in key])
+        return tuple(mapper(x) for x in key)
     if keyType is dict:
         return { k: mapper(v) for k, v in key.items()}
     return key
@@ -85,9 +85,7 @@ def wrap_bool_function(f):
     '''
     def wrapped_function(*args, **kwargs):
 
-        # Try the original args; if true just return true
-        originalResult = f(*args, **kwargs)
-        if originalResult:
+        if originalResult := f(*args, **kwargs):
             return originalResult
 
         # Try our mapped args; return this result regardless
